@@ -17,8 +17,16 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - name: 🛒 Checkout
-        uses: actions/checkout@v2
-      - name: 🔎 Check IP
-        run: curl https://api.ipify.org
+      - name: Whitelist GitHub Runner IP
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            set -eu
+            agentIP=$(curl -s https://api.ipify.org/)
+            az network nic ip-config update \
+            --name ipconfig1 \
+            --nic-name demo-nps \
+            --resource-group demo azure \
+            --public-ip-address $agentIP
+            sleep 300
 
