@@ -4,29 +4,29 @@ name: AzureLoginSample
 
 jobs:
 
-  build-and-deploy:
+  whitelist-ip:
     runs-on: ubuntu-latest
+
     steps:
-    
-    - uses: azure/login@v1
+    - name: Get runner IP
+      run: echo "::set-output name=runner_ip::$(curl ifconfig.io)"
+      id: runner_ip
+
+    - name: Whitelist runner IP on Azure
+      uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-    
-    - run: |
-        az webapp list --query "[?state=='Running']"
-  ci:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Whitelist GitHub Runner IP
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            set -eu
-            agentIP=$(curl -s https://api.ipify.org/)
-            az network nic ip-config update \
-            --name ipconfig1 \
-            --nic-name demo-nps \
-            --resource-group demo azure \
-            --public-ip-address $agentIP
-            sleep 300
+        script: |
+          az network nsg rule create --name SSH --nsg-name <nsg-name> --priority 100 --source-address-prefixes ${{ steps.runner_ip.outputs.runner_ip }}/32 --destination-port-ranges 22 --protocol Tcp
 
+    - name: SSH into VM and run commands
+      uses: appleboy/ssh-action@master
+      with:
+        host: <vm-public-ip>
+        username: <username>
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        script: |
+          ls
+          whoami
+          df
