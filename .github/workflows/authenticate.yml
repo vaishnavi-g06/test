@@ -17,13 +17,13 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
         script: |
-          az network nsg rule create --name SSH --nsg-name <nsg-name> --priority 100 --source-address-prefixes ${{ steps.runner_ip.outputs.runner_ip }}/32 --destination-port-ranges 22 --protocol Tcp
+          az network nsg rule create --name SSH --nsg-name demo-azure --priority 100 --source-address-prefixes ${{ steps.runner_ip.outputs.runner_ip }}/32 --destination-port-ranges 22 --protocol Tcp
 
     - name: SSH into VM and run commands
       uses: appleboy/ssh-action@master
       with:
-        host: <vm-public-ip>
-        username: <username>
+        host: 20.187.77.72
+        username: azureuser
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
         script: |
