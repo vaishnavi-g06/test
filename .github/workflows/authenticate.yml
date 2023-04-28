@@ -30,3 +30,10 @@ jobs:
           ls
           whoami
           df
+    - name: Unlist runner IP on Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          az network nsg rule delete --name SSH --nsg-name demo-azure
+   
