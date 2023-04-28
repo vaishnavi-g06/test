@@ -16,7 +16,7 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-        script: |
+        run: |
           az network nsg rule create --name SSH --nsg-name demo-azure --priority 100 --source-address-prefixes ${{ steps.runner_ip.outputs.runner_ip }}/32 --destination-port-ranges 22 --protocol Tcp
 
     - name: SSH into VM and run commands
